@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Jade Delight</title>
+</head>
+
+<body>
+<script language="javascript">
+
+function MenuItem(name, cost)
+{
+	this.name = name;
+	this.cost=cost;
+}
+
+menuItems = new Array(
+	new MenuItem("Chicken Chop Suey", 4.5),
+	new MenuItem("Sweet and Sour Pork", 6.25),
+	new MenuItem("Shrimp Lo Mein", 5.25),
+	new MenuItem("Moo Shi Chicken", 6.5),
+	new MenuItem("Fried Rice", 2.35)
+);
+
+function makeSelect(name, minRange, maxRange)
+{
+	var t= "";
+	t = "<select name='" + name + "' size='1'>";
+	for (j=minRange; j<=maxRange; j++)
+	   t += "<option>" + j + "</option>";
+	t+= "</select>"; 
+	return t;
+}
+// Changes the Street and City fields to password or text
+function showAddress()
+{
+	var deliveryStreet = document.getElementById("street");
+	var deliveryCity = document.getElementById("city");
+	if (deliveryStreet.type == "password")
+	{
+		deliveryStreet.type = "text";
+		deliveryCity.type = "text";
+	}
+	else {
+		deliveryStreet.type = "password";
+		deliveryCity.type = "password";
+	}
+	
+}
+$(document).ready(function() {
+	$('select').on('change', function() {
+		// Getting amount and cost
+		var amount = this.value;
+		var quan = this.name[4];
+		// Getting cost, tax, and total from values and quantities
+		var cost = amount * menuItems[quan].cost;
+		var tax = (cost * .0625).toFixed(2);
+		var total = parseFloat(cost) + parseFloat(tax)
+		document.getElementsByName("cost")[quan].value = cost;
+		// Getitng the overall subtotal, tax, and total
+		var subtotal = document.getElementById("subtotal").value
+		var total_tax =  document.getElementById("tax").value
+		var total_total = document.getElementById("total").value
+		document.getElementById("subtotal").value = (subtotal * 1) + parseFloat(cost);
+		document.getElementById("tax").value = (total_tax * 1) + parseFloat(tax); 
+		document.getElementById("total").value = (total_total * 1) + parseFloat(total.toFixed(2));
+		
+	});
+}); 
+
+function validateForm()
+{
+	with (document.form1){
+		var last = lname.value;
+		var phone = phone.value;
+		// Checking for last name and proper phone number
+		if (last == "") {
+			alert("Last name must be filled out");
+			return false;
+		}
+		else if (phone.value.length != 10)
+		{
+			alert("Phone number must be filled out");
+			return false;
+		}
+		// Checking for an order
+		var isEmpty = true;
+		for (i = 0; i < 4; i++)
+		{
+			if (document.getElementsByName("cost")[i].value != 0)
+			{
+				isEmpty = false;
+			}
+		}
+		if (isEmpty)
+		{
+			alert("Please order atleast one item");
+			return false;
+		}
+		// Checking if pickup or delivery
+		if (p_or_d[0].checked) {
+			getTime(15);
+		}
+		else if (p_or_d[1].checked)
+		{
+			// Validating that street and city are filled out
+			var street = street.value;
+			var city = street.value;
+			if (street.value == "") {
+				alert("Street must be filled out");
+				return false;
+			}
+			if (city.value == "")
+			{
+				alert("City must be filled out");
+				return false;
+			}
+			else {
+				getTime(30);
+			}
+			
+		}
+	}
+}
+// Function to print out time to get order
+function getTime(minuteIncrement)
+{
+	d = new Date();
+	var minutes = d.getMinutes() + minuteIncrement;
+	var hour = d.getHours();
+	// Incrementing minutes
+	if (minutes > 60){
+		minutes -= 60;
+		hour ++;
+		if (minutes < 10)
+		{
+			minutes = "0" + minutes;
+		}
+	}
+	alert("Your order will be ready for pickup at: " + hour + ":" + minutes);
+}
+</script>
+
+<h1>Jade Delight</h1>
+<form name = "form1" onsubmit = "return validateForm()">
+
+<p>First Name: <input type="text"  name='fname' /></p>
+<p>Last Name*:  <input type="text"  name='lname' /></p>
+<p>Street: <input type="password"  name='street' id = "street" /></p>
+<p>City: <input type="password"  name='city' id = "city" /></p>
+<p>Phone* (xxxxxxxxxx): <input type="text"  name='phone' id = "phone"/></p>
+<p> 
+	<input type="radio"  name="p_or_d" value = "pickup" checked="checked" onclick = "showAddress()"/>Pickup  
+	<input type="radio"  name="p_or_d" value = 'delivery' onclick = "showAddress()"/>
+	Delivery
+</p>
+<table border="0" cellpadding="3">
+  <tr>
+    <th>Select Item</th>
+    <th>Item Name</th>
+    <th>Cost Each</th>
+    <th>Total Cost</th>
+  </tr>
+<script language="javascript">
+
+  var s = "";
+  for (i=0; i< menuItems.length; i++)
+  {
+	  s += "<tr><td>";
+	  s += makeSelect("quan" + i, 0, 10);
+	  s += "</td><td>" + menuItems[i].name + "</td>";
+	  s += "<td> $ " + menuItems[i].cost.toFixed(2) + "</td>";
+	  s += "<td>$<input type='text' name='cost'/></td></tr>";
+  }
+  document.writeln(s);
+</script>
+</table>
+<p>Subtotal: 
+   $<input type="text"  name='subtotal' id="subtotal" />
+</p>
+<p>Mass tax 6.25%:
+  $ <input type="text"  name='tax' id="tax" />
+</p>
+<p>Total: $ <input type="text"  name='total' id="total" />
+</p>
+
+<input type = "submit" value = "Submit Order"/>
+
+</form>
+</body>
+</html>
